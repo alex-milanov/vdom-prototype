@@ -18,6 +18,15 @@ const get = (el, attr, defaultValue) =>
 
 const set = (el, attr, value) => el.setAttribute(attr, value);
 
+const apply = (el, attrs) => (
+	Object.keys(attrs).forEach(attr => set(el, attr, attrs[attr])),
+	el
+);
+
+const applyClasses = (el, classes) => (set(el, 'class', ''), classes.forEach(cls =>
+	(console.log({cls}), el.classList.add(cls))
+), console.log(el, classes), el);
+
 const append = (parent, children = []) => (
 	((children instanceof HTMLElement) && parent.appendChild(children)
 	|| (children instanceof Array) && children.forEach(el =>
@@ -36,7 +45,13 @@ const remove = (parent, child) => {
 
 const create = node => typeof node === 'string'
 	? document.createTextNode(node)
-	: append(document.createElement(node.tag), node.children.map(create));
+	: append(
+			applyClasses(
+				apply(document.createElement(node.tag), node.attrs),
+				node.class
+			),
+			node.children.map(create)
+		);
 
 const replace = (parent, el, child) => parent.replaceChild(
 	el, (child instanceof Node) ? child : parent.childNodes[child]
@@ -47,6 +62,7 @@ module.exports = {
 	on,
 	get,
 	set,
+	applyClasses,
 	append,
 	remove,
 	create,

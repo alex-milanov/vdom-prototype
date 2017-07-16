@@ -32,6 +32,8 @@
     "bourbon-neat": "^1.9.0",
     "deep-diff": "^0.3.8",
     "font-awesome": "^4.7.0",
-    "list-diff2": "^0.1.4"
+    "html-tags": "^2.0.0",
+    "list-diff2": "^0.1.4",
+    "rx": "^4.1.0"
   }
 }

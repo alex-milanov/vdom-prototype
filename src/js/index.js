@@ -2,6 +2,10 @@
 
 // following loosly: https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060
 
+// lib
+const Rx = require('rx');
+const $ = Rx.Observable;
+
 const listDiff = require('list-diff2');
 const deepDiff = require('deep-diff');
 // const {diff, applyChange, applyDiff} = require('deep-diff');
@@ -10,18 +14,41 @@ const {take} = require('./util/common');
 const {on, select} = require('./util/dom');
 const {attach, patch, h} = require('./util/vdom');
 
-let vdom = attach('#ui', h('ul', {},
-	h('li', {}, 'List Item 1'),
-	h('li', {}, 'List Item 2'),
-	h('li', {}, 'List Item 3')
-));
+const ui = require('./ui');
 
-on(select('#patch'), 'click', ev => {
-	vdom = patch(vdom, h('p', {}, 'Hello World!'));
+// actions
+const actions$ = new Rx.Subject();
+const actions = {
+	set: listCount => actions$.onNext(
+		state => Object.assign({}, state, {listCount})
+	),
+	toggle: () => actions$.onNext(
+		state => Object.assign({}, state, {toggled: !state.toggled})
+	),
+	initial: {listCount: 3, toggled: false}
+};
+
+// reducing the stream of actions to the app state
+const state$ = actions$
+	.startWith(() => actions.initial)
+	.scan((state, reducer) => reducer(state), {})
+	.map(state => (console.log(state), state))
+	.share();
+
+let vdom = attach('#ui', ui({state: actions.initial, actions}));
+
+on(document, 'click', '#toggle', ev => actions.toggle());
+
+on(document, 'input', '#itemsCount', ev => {
+	actions.set(ev.target.value);
+	// vdom = patch(vdom, h('ul', {}, take(ev.target.value).map(index =>
+	// 	h('li', {}, `List Item ${index}`)
+	// )));
 });
 
-on(select('#itemsCount'), 'input', ev => {
-	vdom = patch(vdom, h('ul', {}, take(ev.target.value).map(index =>
-		h('li', {}, `List Item ${index}`)
-	)));
+// mapping the state to the ui
+const ui$ = state$.map(state => ui({state, actions}));
+
+ui$.subscribe(vtree => {
+	vdom = patch(vdom, vtree);
 });
