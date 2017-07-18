@@ -37,6 +37,8 @@ const state$ = actions$
 
 let vdom = attach('#ui', ui({state: actions.initial, actions}));
 
+console.log(vdom);
+
 on(document, 'click', '#toggle', ev => actions.toggle());
 
 on(document, 'input', '#itemsCount', ev => {

@@ -48,7 +48,7 @@ const update = (parent, newNode, oldNode, index = 0) =>
 	);
 
 const processSelector = selector => ({
-	tag: (selector.match(/^([a-zA-Z]+)/ig) || ['div']).shift(),
+	tag: (selector.match(/^([a-zA-Z0-9]+)/ig) || ['div']).shift(),
 	class: (selector.match(/(\.[a-zA-Z0-9\-_]+)/ig) || []).map(cls => cls.replace('.', '')),
 	id: (selector.match(/(#[a-zA-Z0-9\-_]+)/ig) || []).map(cls => cls.replace('#', '')).shift()
 });
@@ -70,6 +70,7 @@ const processChildren = children =>
 		&& children[0]
 		|| children;
 
+// our h (hyperscript) function
 const h = (selector, data, ...children) => [processSelector(selector)].map(
 	node => Object.assign(
 		{},
@@ -84,13 +85,21 @@ const h = (selector, data, ...children) => [processSelector(selector)].map(
 	)
 ).pop();
 
+// attach an apply a virtual dom tree to an element
 const attach = (selector, tree) => ({
 	el: append(
 		select(selector), create(tree)
 	),
 	tree
 });
+/*
+const attach = (selector, tree) => [select(selector)].map(oldEl => ({
+	el: replace(oldEl.parentNode, create(tree), oldEl),
+	tree
+})).pop();
+*/
 
+// apply a new patch to a virtual dom tree
 const patch = (vdom, tree) => {
 	// console.log(deepDiff.diff(vdom.tree, tree));
 	let patches = update(vdom.el, tree, vdom.tree);
@@ -102,6 +111,7 @@ const patch = (vdom, tree) => {
 	});
 };
 
+// generate hyperscript helpers ul('#list') -> h('ul#list')
 const hyperHelpers = htmlTags.reduce(
 	(o, tag) => {
 		o[tag] = function() {
@@ -118,6 +128,8 @@ const hyperHelpers = htmlTags.reduce(
 		return o;
 	}, {}
 );
+
+console.log(hyperHelpers);
 
 module.exports = Object.assign(
 	{

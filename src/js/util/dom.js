@@ -53,9 +53,9 @@ const create = node => typeof node === 'string'
 			node.children.map(create)
 		);
 
-const replace = (parent, el, child) => parent.replaceChild(
+const replace = (parent, el, child) => (parent.replaceChild(
 	el, (child instanceof Node) ? child : parent.childNodes[child]
-);
+), el);
 
 module.exports = {
 	select,
