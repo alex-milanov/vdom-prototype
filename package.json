@@ -12,8 +12,8 @@
     "watch:js": "watchify src/js/index.js -o dist/js/app.js --debug",
     "watch:sass": "nodemon -w src/sass -e sass -x 'npm run build:sass'",
     "livereload": "livereload dist/**/*.css -d",
-		"start": "npm run build && serve --path dist & npm run watch",
-		"sync:gh": "git checkout gh-pages && git rebase master && git push && git checkout master"
+    "start": "npm run build && serve --path dist & npm run watch",
+    "sync:gh": "git checkout gh-pages && git rebase master && git push && git checkout master"
   },
   "author": "Alex Milanov <alex@i4web.biz>",
   "license": "MIT",
@@ -34,6 +34,7 @@
     "deep-diff": "^0.3.8",
     "font-awesome": "^4.7.0",
     "html-tags": "^2.0.0",
+    "iblokz-data": "^1.0.2",
     "list-diff2": "^0.1.4",
     "rx": "^4.1.0"
   }

@@ -3,6 +3,7 @@
 const {
 	section, h1, a, div, i,
 	form, button, input, label,
+	select, option,
 	ul, li, h, hr
 } = require('../util/vdom');
 
@@ -19,15 +20,26 @@ module.exports = ({state, actions}) => section('#ui',
 	}),
 	label('Items Count'),
 	' ',
+	select('#itemsType', ['number', 'text', 'password'].map(type =>
+		option({attrs: {
+			value: type
+		}}, type)
+	)),
 	input('#itemsCount', {
 		attrs: {
-			type: 'number',
+			type: state.itemsType,
 			value: state.listCount
 		}
 	}),
+	input({
+		attrs: {
+			type: 'checkbox',
+			checked: state.itemsType === 'number'
+		}
+	}),
 	ul('.itemsList',
-		take(state.listCount).map(index =>
+		(state.itemsType === 'number') && take(state.listCount).map(index =>
 			li(`List Item ${index}`)
-		)
+		) || []
 	)
 );

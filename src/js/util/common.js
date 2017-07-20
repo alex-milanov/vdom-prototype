@@ -26,9 +26,12 @@ const biterate2 = (a, b, cb) => {
 const take = (num, index = 0) =>
 	(index < num) ? [].concat(index, take(num, index + 1)) : [];
 
+const unique = (c1, c2) => c1.filter(el => c2.indexOf(el) === -1);
+
 module.exports = {
 	jsonEqual,
 	biterate,
 	biterate2,
-	take
+	take,
+	unique
 };

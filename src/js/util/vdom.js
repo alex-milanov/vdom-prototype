@@ -1,15 +1,48 @@
 'use strict';
 
 const htmlTags = require('html-tags');
+const {obj} = require('iblokz-data');
 
-const {jsonEqual, take, biterate} = require('./common');
-const {select, on, set, get, applyClasses, append, remove, create, replace} = require('./dom');
+const {jsonEqual, take, biterate, unique} = require('./common');
+const {select, on, set, unset, get, applyClasses, append, remove, create, replace} = require('./dom');
 
 const breakingChanges = (node1, node2) => typeof node1 !== typeof node2
 	|| typeof node1 === 'string' && node1 !== node2
 	|| node1.tag !== node2.tag;
 
-const update = (parent, newNode, oldNode, index = 0) =>
+let update;
+const updateChildren = (parent, newChildren, oldChildren) =>
+	(newChildren === oldChildren) && []
+	|| (newChildren.length === oldChildren.length) && jsonEqual(newChildren, oldChildren) && []
+	// different lengths, but contain matching portions -> iterate through the differences
+	|| (newChildren.length !== oldChildren.length)
+		&& [Math.min(newChildren.length, oldChildren.length)].map(minLength =>
+			jsonEqual(newChildren.slice(0, minLength), oldChildren.slice(0, minLength))
+			&& biterate(newChildren, oldChildren,
+				(n, o, _i) => update(parent, n, o, _i),
+				minLength
+			)
+		).pop()
+	// now iterate through the children (the tag is to indicate that this is a htmlnode)
+	|| biterate(newChildren, oldChildren,
+			(n, o, _i) => update(parent, n, o, _i)
+		)
+	|| [];
+
+const keysOf = o => o instanceof Object && Object.keys(o) || [];
+const updateAttrs = (el, newAttrs, oldAttrs) => [].concat(
+	// to be added
+	unique(keysOf(newAttrs), keysOf(oldAttrs))
+		.map(attr => () => set(el, attr, newAttrs[attr])),
+	// to be removed
+	unique(keysOf(oldAttrs), keysOf(newAttrs))
+		.map(attr => () => unset(el, attr)),
+	// to be changed
+	keysOf(newAttrs).filter(attr => oldAttrs[attr] && oldAttrs[attr] !== newAttrs[attr])
+		.map(attr => () => set(el, attr, newAttrs[attr]))
+);
+
+update = (parent, newNode, oldNode, index = 0) =>
 	// 1. breaking changes
 	// if no old node just append the new one
 	(!oldNode) && [() => append(parent, create(newNode))]
@@ -27,24 +60,11 @@ const update = (parent, newNode, oldNode, index = 0) =>
 		!jsonEqual(newNode.class, oldNode.class)
 			? [(child => () => applyClasses(child, newNode.class))(parent.childNodes[index])]
 			: [],
+		// attrs
+		updateAttrs(parent.childNodes[index], newNode.attrs, oldNode.attrs),
 		// 2.2 children
 		// same length and same contents -> no patches needed
-		(newNode.children.length === oldNode.children.length) && jsonEqual(newNode, oldNode) && []
-		// different lengths, but contain matching portions -> iterate through the differences
-		|| newNode.tag && (newNode.children.length !== oldNode.children.length)
-			&& [Math.min(newNode.children.length, oldNode.children.length)].map(minLength =>
-				jsonEqual(newNode.children.slice(0, minLength), oldNode.children.slice(0, minLength))
-				&& biterate(newNode.children, oldNode.children,
-					(n, o, _i) => update(parent.childNodes[index], n, o, _i),
-					minLength
-				)
-			).pop()
-		// now iterate through the children (the tag is to indicate that this is a htmlnode)
-		|| (newNode.tag)
-			&& biterate(newNode.children, oldNode.children,
-				(n, o, _i) => update(parent.childNodes[index], n, o, _i)
-			)
-		|| []
+		updateChildren(parent.childNodes[index], newNode.children, oldNode.children)
 	);
 
 const processSelector = selector => ({
@@ -56,7 +76,9 @@ const processSelector = selector => ({
 const processData = (node, data = {}) => Object.assign({}, node, {
 	props: data.props || {},
 	attrs: Object.assign({},
-		data.attrs,
+		keysOf(data.attrs)
+			.filter(attr => typeof data.attrs[attr] !== 'boolean' || data.attrs[attr] === true)
+			.reduce((o, attr) => obj.patch(o, attr, data.attrs[attr]), {}),
 		node.id ? {id: node.id} : {}
 	),
 	class: [].concat(
@@ -88,7 +110,7 @@ const h = (selector, data, ...children) => [processSelector(selector)].map(
 // attach an apply a virtual dom tree to an element
 const attach = (selector, tree) => ({
 	el: append(
-		select(selector), create(tree)
+		select(selector), tree.children.map(create)
 	),
 	tree
 });
@@ -102,7 +124,7 @@ const attach = (selector, tree) => [select(selector)].map(oldEl => ({
 // apply a new patch to a virtual dom tree
 const patch = (vdom, tree) => {
 	// console.log(deepDiff.diff(vdom.tree, tree));
-	let patches = update(vdom.el, tree, vdom.tree);
+	let patches = updateChildren(vdom.el, tree.children, vdom.tree.children);
 	console.log(patches);
 	patches.forEach(p => p());
 	return ({

@@ -17,6 +17,7 @@ const get = (el, attr, defaultValue) =>
 	el.getAttribute(attr) || defaultValue;
 
 const set = (el, attr, value) => el.setAttribute(attr, value);
+const unset = (el, attr) => el.removeAttribute(attr);
 
 const apply = (el, attrs) => (
 	Object.keys(attrs).forEach(attr => set(el, attr, attrs[attr])),
@@ -62,6 +63,7 @@ module.exports = {
 	on,
 	get,
 	set,
+	unset,
 	applyClasses,
 	append,
 	remove,

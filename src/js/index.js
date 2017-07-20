@@ -6,6 +6,9 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
+//
+const {obj} = require('iblokz-data');
+
 const listDiff = require('list-diff2');
 const deepDiff = require('deep-diff');
 // const {diff, applyChange, applyDiff} = require('deep-diff');
@@ -19,13 +22,13 @@ const ui = require('./ui');
 // actions
 const actions$ = new Rx.Subject();
 const actions = {
-	set: listCount => actions$.onNext(
-		state => Object.assign({}, state, {listCount})
+	set: (path, value) => actions$.onNext(
+		state => obj.patch(state, path, value)
 	),
 	toggle: () => actions$.onNext(
 		state => Object.assign({}, state, {toggled: !state.toggled})
 	),
-	initial: {listCount: 3, toggled: false}
+	initial: {listCount: 3, itemsType: 'number', toggled: false}
 };
 
 // reducing the stream of actions to the app state
@@ -42,7 +45,14 @@ console.log(vdom);
 on(document, 'click', '#toggle', ev => actions.toggle());
 
 on(document, 'input', '#itemsCount', ev => {
-	actions.set(ev.target.value);
+	actions.set('itemsCount', ev.target.value);
+	// vdom = patch(vdom, h('ul', {}, take(ev.target.value).map(index =>
+	// 	h('li', {}, `List Item ${index}`)
+	// )));
+});
+
+on(document, 'change', '#itemsType', ev => {
+	actions.set('itemsType', ev.target.value);
 	// vdom = patch(vdom, h('ul', {}, take(ev.target.value).map(index =>
 	// 	h('li', {}, `List Item ${index}`)
 	// )));
