@@ -1,5 +1,7 @@
 'use strict';
 
+const {put, del} = require('./common');
+
 const select = selector =>
 	(selector instanceof HTMLElement) && selector
 	|| (typeof selector === 'string') && document.querySelector(selector)
@@ -24,6 +26,10 @@ const apply = (el, attrs) => (
 	el
 );
 
+const applyProps = (el, props) => (Object.keys(props)
+	.forEach(prop => put(el, prop, props[prop])),
+	console.log(props, el), el);
+
 const applyClasses = (el, classes) => (set(el, 'class', ''), classes.forEach(cls =>
 	(console.log({cls}), el.classList.add(cls))
 ), console.log(el, classes), el);
@@ -47,9 +53,12 @@ const remove = (parent, child) => {
 const create = node => typeof node === 'string'
 	? document.createTextNode(node)
 	: append(
-			applyClasses(
-				apply(document.createElement(node.tag), node.attrs),
-				node.class
+			applyProps(
+				applyClasses(
+					apply(document.createElement(node.tag), node.attrs),
+					node.class
+				),
+				node.props
 			),
 			node.children.map(create)
 		);

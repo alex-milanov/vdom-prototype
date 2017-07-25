@@ -2328,4 +2328,159 @@
   overflow: visible;
   clip: auto; }
 
+body {
+  margin: 0px;
+  padding: 0px;
+  display: inline-block;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  color: #333; }
+
+body, input, label, textarea, select, pre {
+  font-size: 16px; }
+
+body, h1, h2, h3, input, label, textarea, select, pre {
+  font-family: Helvetica, Arial, sans-serif; }
+
+.left {
+  float: left; }
+
+.text-left {
+  text-align: left; }
+
+.right {
+  float: right; }
+
+.text-right {
+  text-align: right; }
+
+a {
+  text-decoration: none;
+  outline: none; }
+  a:hover {
+    text-decoration: underline; }
+
+button {
+  text-shadow: 1px 1px 0px #aaa; }
+  button.fa {
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 18px;
+    line-height: 18px;
+    border-radius: 100%;
+    border: 0px;
+    width: 18px;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+    vertical-align: middle; }
+    button.fa::before {
+      margin: 0px;
+      padding: 0px;
+      display: inline-block;
+      box-sizing: border-box;
+      height: 18px;
+      line-height: 18px;
+      vertical-align: middle; }
+    button.fa:not(:first-child) {
+      margin-left: 7px; }
+  button:hover {
+    background: #ccc; }
+  button.primary {
+    color: #fff;
+    background: #9af; }
+    button.primary:hover {
+      background: #8095ff; }
+  button.info {
+    color: #fff;
+    background: #ade; }
+    button.info:hover {
+      background: #95d5ea; }
+  button.danger {
+    color: #fff;
+    background: #e99; }
+    button.danger:hover {
+      background: #ea8383; }
+  button.success {
+    color: #fff;
+    background: #9e9; }
+    button.success:hover {
+      background: #83ea83; }
+
+#ui {
+  margin: 0px;
+  padding: 0px;
+  display: inline-block;
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background: #fafafa; }
+  #ui header {
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 50px;
+    line-height: 50px;
+    width: 100%;
+    margin-bottom: 20px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(245, 245, 245, 0.8) 95%, #cccccc 100%); }
+    #ui header > * {
+      margin: 0px;
+      padding: 0px;
+      display: inline-block;
+      box-sizing: border-box;
+      height: 50px;
+      line-height: 50px; }
+    #ui header h1 {
+      font-size: 24px;
+      width: 100%;
+      text-align: center; }
+  #ui input, #ui select, #ui button {
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 32px;
+    line-height: 32px;
+    padding: 0px 0px 0px 7px;
+    border: 0px;
+    outline: none;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    box-sizing: border-box; }
+  #ui ul {
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
+    box-sizing: border-box;
+    display: block;
+    margin: 10px 0px; }
+    #ui ul li {
+      margin: 0px;
+      padding: 0px;
+      display: inline-block;
+      box-sizing: border-box;
+      height: 32px;
+      line-height: 32px;
+      background: linear-gradient(to bottom, transparent 0%, rgba(245, 245, 245, 0.8) 95%, #cccccc 100%);
+      border-top: 1px solid #eee;
+      display: block; }
+      #ui ul li:before {
+        content: '\f0da';
+        display: inline-block;
+        width: 24px;
+        text-align: center;
+        font-family: FontAwesome;
+        font-size: 0.8em; }
+
 /*# sourceMappingURL=style.css.map */

@@ -28,10 +28,15 @@ const take = (num, index = 0) =>
 
 const unique = (c1, c2) => c1.filter(el => c2.indexOf(el) === -1);
 
+const put = (o, k, v) => ((o[k] = v), o);
+const del = (o, k) => ((delete o[k]), o);
+
 module.exports = {
 	jsonEqual,
 	biterate,
 	biterate2,
 	take,
-	unique
+	unique,
+	put,
+	del
 };

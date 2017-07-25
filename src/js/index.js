@@ -28,7 +28,7 @@ const actions = {
 	toggle: () => actions$.onNext(
 		state => Object.assign({}, state, {toggled: !state.toggled})
 	),
-	initial: {listCount: 3, itemsType: 'number', toggled: false}
+	initial: {itemsCount: 3, itemsType: 'number', toggled: false}
 };
 
 // reducing the stream of actions to the app state
@@ -45,6 +45,7 @@ console.log(vdom);
 on(document, 'click', '#toggle', ev => actions.toggle());
 
 on(document, 'input', '#itemsCount', ev => {
+	console.log(ev.target);
 	actions.set('itemsCount', ev.target.value);
 	// vdom = patch(vdom, h('ul', {}, take(ev.target.value).map(index =>
 	// 	h('li', {}, `List Item ${index}`)

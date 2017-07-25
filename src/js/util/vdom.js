@@ -3,7 +3,7 @@
 const htmlTags = require('html-tags');
 const {obj} = require('iblokz-data');
 
-const {jsonEqual, take, biterate, unique} = require('./common');
+const {jsonEqual, take, biterate, unique, put, del} = require('./common');
 const {select, on, set, unset, get, applyClasses, append, remove, create, replace} = require('./dom');
 
 const breakingChanges = (node1, node2) => typeof node1 !== typeof node2
@@ -41,6 +41,17 @@ const updateAttrs = (el, newAttrs, oldAttrs) => [].concat(
 	keysOf(newAttrs).filter(attr => oldAttrs[attr] && oldAttrs[attr] !== newAttrs[attr])
 		.map(attr => () => set(el, attr, newAttrs[attr]))
 );
+const updateProps = (el, newProps, oldProps) => [].concat(
+	// to be added
+	unique(keysOf(newProps), keysOf(oldProps))
+		.map(prop => () => put(el, prop, newProps[prop])),
+	// to be removed
+	unique(keysOf(oldProps), keysOf(newProps))
+		.map(prop => () => del(el, prop)),
+	// to be changed
+	keysOf(newProps).filter(prop => oldProps[prop] && oldProps[prop] !== newProps[prop])
+		.map(prop => () => put(el, prop, newProps[prop]))
+);
 
 update = (parent, newNode, oldNode, index = 0) =>
 	// 1. breaking changes
@@ -60,6 +71,8 @@ update = (parent, newNode, oldNode, index = 0) =>
 		!jsonEqual(newNode.class, oldNode.class)
 			? [(child => () => applyClasses(child, newNode.class))(parent.childNodes[index])]
 			: [],
+		// props
+		updateProps(parent.childNodes[index], newNode.props, oldNode.props),
 		// attrs
 		updateAttrs(parent.childNodes[index], newNode.attrs, oldNode.attrs),
 		// 2.2 children

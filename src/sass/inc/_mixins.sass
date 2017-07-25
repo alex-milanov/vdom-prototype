@@ -1,0 +1,36 @@
+
+// basic
+=reset
+  margin: 0px
+  padding: 0px
+  display: inline-block
+  box-sizing: border-box
+
+=header-height($s)
+  +reset
+  height: $s
+  line-height: $s
+
+// media queries
+=phone
+  @media (min-width: #{$phone-width}) and (max-width: #{$tablet-width - 1px})
+    @content
+
+=tablet
+  @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px})
+    @content
+
+=desktop
+  @media (min-width: #{$desktop-width})
+    @content
+
+=ui-button($h: 32px, $p: 10px)
+	+reset
+	box-sizing: border-box
+	height: $h
+	line-height: $h - 2*$p
+	padding: $p
+	cursor: pointer
+	font-size: $h / 2 - 2px
+	&:active
+		padding: ($p + 1) $p ($p - 1) $p
