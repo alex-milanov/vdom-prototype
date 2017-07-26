@@ -14,6 +14,9 @@ module.exports = ({state, actions}) => section('#ui',
 		h1('VDOM Prototype')
 	),
 	i('#toggle.fa', {
+		on: {
+			click: () => actions.toggle()
+		},
 		class: {
 			'fa-toggle-on': state.toggled,
 			'fa-toggle-off': !state.toggled
@@ -21,12 +24,19 @@ module.exports = ({state, actions}) => section('#ui',
 	}),
 	label('Items Count'),
 	' ',
-	select('#itemsType', ['number', 'text', 'password'].map(type =>
+	select('#itemsType', {
+		on: {
+			change: ev => actions.set('itemsType', ev.target.value)
+		}
+	}, ['number', 'text', 'password'].map(type =>
 		option({props: {
 			value: type
 		}}, type)
 	)),
 	input('#itemsCount', {
+		on: {
+			input: ev => actions.set('itemsCount', ev.target.value)
+		},
 		attrs: {
 			type: state.itemsType
 		},

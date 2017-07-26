@@ -4,7 +4,7 @@ const htmlTags = require('html-tags');
 const {obj} = require('iblokz-data');
 
 const {jsonEqual, take, biterate, unique, put, del} = require('./common');
-const {select, on, set, unset, get, applyClasses, append, remove, create, replace} = require('./dom');
+const {select, on, off, set, unset, get, applyClasses, append, remove, create, replace} = require('./dom');
 
 const breakingChanges = (node1, node2) => typeof node1 !== typeof node2
 	|| typeof node1 === 'string' && node1 !== node2
@@ -53,6 +53,22 @@ const updateProps = (el, newProps, oldProps) => [].concat(
 		.map(prop => () => put(el, prop, newProps[prop]))
 );
 
+const updateEvents = (el, newEvents, oldEvents) => [].concat(
+	// to be added
+	unique(keysOf(newEvents), keysOf(oldEvents))
+		.map(event => () => on(el, event, newEvents[event])),
+	// to be removed
+	unique(keysOf(oldEvents), keysOf(newEvents))
+		.map(event => () => off(el, event, oldEvents[event])),
+	// to be changed
+	keysOf(newEvents).filter(event =>
+		oldEvents[event] && oldEvents[event] !== newEvents[event])
+		.map(event => () => (
+			off(el, event, oldEvents[event]),
+			on(el, event, newEvents[event])
+		))
+);
+
 update = (parent, newNode, oldNode, index = 0) =>
 	// 1. breaking changes
 	// if no old node just append the new one
@@ -75,6 +91,8 @@ update = (parent, newNode, oldNode, index = 0) =>
 		updateProps(parent.childNodes[index], newNode.props, oldNode.props),
 		// attrs
 		updateAttrs(parent.childNodes[index], newNode.attrs, oldNode.attrs),
+		// events
+		updateAttrs(parent.childNodes[index], newNode.on, oldNode.on),
 		// 2.2 children
 		// same length and same contents -> no patches needed
 		updateChildren(parent.childNodes[index], newNode.children, oldNode.children)
@@ -87,6 +105,7 @@ const processSelector = selector => ({
 });
 
 const processData = (node, data = {}) => Object.assign({}, node, {
+	on: data.on || {},
 	props: data.props || {},
 	attrs: Object.assign({},
 		keysOf(data.attrs)

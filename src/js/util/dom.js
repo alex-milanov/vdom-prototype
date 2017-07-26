@@ -1,19 +1,32 @@
 'use strict';
 
 const {put, del} = require('./common');
+const {fn} = require('iblokz-data');
+
+const keys = o => Object.keys(o);
 
 const select = selector =>
 	(selector instanceof HTMLElement) && selector
 	|| (typeof selector === 'string') && document.querySelector(selector)
 	|| null;
 
-const on = (el, eventName, selector, cb) =>
-	el.addEventListener(eventName, ev =>
-		(typeof selector === 'string' && typeof cb !== 'undefined')
-			? (Array.from(
-				el.querySelectorAll(selector)).indexOf(ev.target) > -1)
-					? cb(ev) : false
-			: (cb => cb(ev))(selector));
+const createEvent = (el, eventName, selector, cb) =>
+	ev => (typeof selector === 'string' && typeof cb !== 'undefined')
+		? (Array.from(
+			el.querySelectorAll(selector)).indexOf(ev.target) > -1)
+				? cb(ev) : false
+		: (cb => cb(ev))(selector);
+
+const on = (el, eventName, selector, cb) => [
+	createEvent(el, eventName, selector, cb)
+].map(cb => (
+	el.addEventListener(eventName, cb),
+	{el, cb}
+));
+
+const off = (el, eventName, selector, cb) => el.removeEventListener(el,
+	createEvent(el, eventName, selector, cb)
+);
 
 const get = (el, attr, defaultValue) =>
 	el.getAttribute(attr) || defaultValue;
@@ -34,6 +47,11 @@ const applyClasses = (el, classes) => (set(el, 'class', ''), classes.forEach(cls
 	(console.log({cls}), el.classList.add(cls))
 ), console.log(el, classes), el);
 
+const applyEvents = (el, events) => (keys(events)
+	.forEach(eventName => on(el, eventName, events[eventName])),
+	el
+);
+
 const append = (parent, children = []) => (
 	((children instanceof HTMLElement) && parent.appendChild(children)
 	|| (children instanceof Array) && children.forEach(el =>
@@ -53,12 +71,15 @@ const remove = (parent, child) => {
 const create = node => typeof node === 'string'
 	? document.createTextNode(node)
 	: append(
-			applyProps(
-				applyClasses(
-					apply(document.createElement(node.tag), node.attrs),
-					node.class
+			applyEvents(
+				applyProps(
+					applyClasses(
+						apply(document.createElement(node.tag), node.attrs),
+						node.class
+					),
+					node.props
 				),
-				node.props
+				node.on
 			),
 			node.children.map(create)
 		);
@@ -70,6 +91,7 @@ const replace = (parent, el, child) => (parent.replaceChild(
 module.exports = {
 	select,
 	on,
+	off,
 	get,
 	set,
 	unset,
