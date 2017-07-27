@@ -53,21 +53,39 @@ const updateProps = (el, newProps, oldProps) => [].concat(
 		.map(prop => () => put(el, prop, newProps[prop]))
 );
 
-const updateEvents = (el, newEvents, oldEvents) => [].concat(
+const updateStyle = (el, newStyle, oldStyle) => [].concat(
 	// to be added
-	unique(keysOf(newEvents), keysOf(oldEvents))
-		.map(event => () => on(el, event, newEvents[event])),
+	unique(keysOf(newStyle), keysOf(oldStyle))
+		.map(k => () => put(el.style, k, newStyle[k])),
 	// to be removed
-	unique(keysOf(oldEvents), keysOf(newEvents))
-		.map(event => () => off(el, event, oldEvents[event])),
+	unique(keysOf(oldStyle), keysOf(newStyle))
+		.map(k => () => del(el.style, k)),
 	// to be changed
-	keysOf(newEvents).filter(event =>
-		oldEvents[event] && oldEvents[event] !== newEvents[event])
-		.map(event => () => (
-			off(el, event, oldEvents[event]),
-			on(el, event, newEvents[event])
-		))
+	keysOf(newStyle).filter(k => oldStyle[k] && oldStyle[k] !== newStyle[k])
+		.map(k => () => put(el.style, k, newStyle[k]))
 );
+
+const updateEvents = (el, newEvents, oldEvents) =>
+	[].concat(
+		// to be added
+		unique(keysOf(newEvents), keysOf(oldEvents))
+			.map(event =>
+				() => on(el, event, newEvents[event])
+			),
+		// to be removed
+		unique(keysOf(oldEvents), keysOf(newEvents))
+			.map(event =>
+				() => off(el, event, oldEvents[event])
+			),
+		// to be changed
+		keysOf(newEvents).filter(event =>
+			oldEvents[event] && oldEvents[event] !== newEvents[event])
+			.map(event => [
+				() => off(el, event, oldEvents[event]),
+				() => on(el, event, newEvents[event])
+			])
+			.reduce((a, e) => [].concat(a, e), [])
+	);
 
 update = (parent, newNode, oldNode, index = 0) =>
 	// 1. breaking changes
@@ -92,7 +110,9 @@ update = (parent, newNode, oldNode, index = 0) =>
 		// attrs
 		updateAttrs(parent.childNodes[index], newNode.attrs, oldNode.attrs),
 		// events
-		updateAttrs(parent.childNodes[index], newNode.on, oldNode.on),
+		updateEvents(parent.childNodes[index], newNode.on, oldNode.on),
+		// style
+		updateStyle(parent.childNodes[index], newNode.style, oldNode.style),
 		// 2.2 children
 		// same length and same contents -> no patches needed
 		updateChildren(parent.childNodes[index], newNode.children, oldNode.children)
@@ -106,6 +126,7 @@ const processSelector = selector => ({
 
 const processData = (node, data = {}) => Object.assign({}, node, {
 	on: data.on || {},
+	style: data.style || {},
 	props: data.props || {},
 	attrs: Object.assign({},
 		keysOf(data.attrs)

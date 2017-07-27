@@ -40,11 +40,13 @@ module.exports = ({state, actions}) => section('#ui',
 			input: ev => actions.set('itemsCount', ev.target.value)
 		},
 		attrs: {
-			type: state.itemsType,
-			size: Math.max(3, String(state.itemsCount).length)
+			type: state.itemsType
 		},
 		props: {
 			value: state.itemsCount
+		},
+		style: {
+			width: (Math.max(3, String(state.itemsCount).length) + 3) * 0.60 + 'em'
 		}
 	}),
 	/*

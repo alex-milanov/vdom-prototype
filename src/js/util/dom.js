@@ -17,15 +17,13 @@ const createEvent = (el, eventName, selector, cb) =>
 				? cb(ev) : false
 		: (cb => cb(ev))(selector);
 
-const on = (el, eventName, selector, cb) => [
-	createEvent(el, eventName, selector, cb)
-].map(cb => (
-	el.addEventListener(eventName, cb),
-	{el, cb}
-));
+const on = (el, eventName, cb) =>
+// [createEvent(el, eventName, selector, cb)].map(cb => (
+	el.addEventListener(eventName, cb);
+// {el, cb} ));
 
-const off = (el, eventName, selector, cb) => el.removeEventListener(el,
-	createEvent(el, eventName, selector, cb)
+const off = (el, eventName, cb) => el.removeEventListener(
+	eventName, cb // createEvent(el, eventName, selector, cb)
 );
 
 const get = (el, attr, defaultValue) =>
@@ -41,16 +39,20 @@ const apply = (el, attrs) => (
 
 const applyProps = (el, props) => (Object.keys(props)
 	.forEach(prop => put(el, prop, props[prop])),
-	console.log(props, el), el);
+	// console.log(props, el),
+	el);
 
 const applyClasses = (el, classes) => (set(el, 'class', ''), classes.forEach(cls =>
-	(console.log({cls}), el.classList.add(cls))
-), console.log(el, classes), el);
+	el.classList.add(cls)
+), el);
 
 const applyEvents = (el, events) => (keys(events)
 	.forEach(eventName => on(el, eventName, events[eventName])),
-	el
-);
+	el);
+
+const applyStyle = (el, style) => (keys(style)
+	.forEach(k => put(el.style, k, style[k])),
+	el);
 
 const append = (parent, children = []) => (
 	((children instanceof HTMLElement) && parent.appendChild(children)
@@ -72,12 +74,15 @@ const create = node => typeof node === 'string'
 	? document.createTextNode(node)
 	: append(
 		applyEvents(
-			applyProps(
-				applyClasses(
-					apply(document.createElement(node.tag), node.attrs),
-					node.class
+			applyStyle(
+				applyProps(
+					applyClasses(
+						apply(document.createElement(node.tag), node.attrs),
+						node.class
+					),
+					node.props
 				),
-				node.props
+				node.style
 			),
 			node.on
 		),
