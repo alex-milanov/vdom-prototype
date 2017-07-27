@@ -71,18 +71,18 @@ const remove = (parent, child) => {
 const create = node => typeof node === 'string'
 	? document.createTextNode(node)
 	: append(
-			applyEvents(
-				applyProps(
-					applyClasses(
-						apply(document.createElement(node.tag), node.attrs),
-						node.class
-					),
-					node.props
+		applyEvents(
+			applyProps(
+				applyClasses(
+					apply(document.createElement(node.tag), node.attrs),
+					node.class
 				),
-				node.on
+				node.props
 			),
-			node.children.map(create)
-		);
+			node.on
+		),
+		node.children.map(create)
+	);
 
 const replace = (parent, el, child) => (parent.replaceChild(
 	el, (child instanceof Node) ? child : parent.childNodes[child]

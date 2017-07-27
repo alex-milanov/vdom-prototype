@@ -33,6 +33,7 @@
     "bourbon": "^4.3.4",
     "bourbon-neat": "^1.9.0",
     "deep-diff": "^0.3.8",
+    "firacode": "^1.205.0",
     "font-awesome": "^4.7.0",
     "html-tags": "^2.0.0",
     "iblokz-data": "^1.0.2",

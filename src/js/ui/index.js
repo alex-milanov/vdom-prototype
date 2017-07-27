@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-	section, h1, a, div, i,
+	section, h1, a, div, i, span,
 	form, button, input, label,
 	select, option, header,
 	ul, li, h, hr
@@ -11,7 +11,7 @@ const {take} = require('../util/common');
 
 module.exports = ({state, actions}) => section('#ui',
 	header(
-		h1('VDOM Prototype')
+		h1('<!-- VDOM Prototype -->')
 	),
 	i('#toggle.fa', {
 		on: {
@@ -22,6 +22,7 @@ module.exports = ({state, actions}) => section('#ui',
 			'fa-toggle-off': !state.toggled
 		}
 	}),
+	' ',
 	label('Items Count'),
 	' ',
 	select('#itemsType', {
@@ -33,12 +34,14 @@ module.exports = ({state, actions}) => section('#ui',
 			value: type
 		}}, type)
 	)),
+	' ',
 	input('#itemsCount', {
 		on: {
 			input: ev => actions.set('itemsCount', ev.target.value)
 		},
 		attrs: {
-			type: state.itemsType
+			type: state.itemsType,
+			size: Math.max(3, String(state.itemsCount).length)
 		},
 		props: {
 			value: state.itemsCount
